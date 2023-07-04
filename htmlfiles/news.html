@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>News App</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous"/>
+  <script src="/script.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans:wght@300;400;500&display=swap');
+
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  nav {
+    background-color: #c7742b;
+    padding: 8px;
+  }
+  
+  nav ul {
+    list-style-type: none;
+    text-align: right;
+    margin: 0.5rem 2rem;
+  }
+  
+  nav ul li {
+    display: inline-block;
+    margin-right: 3rem;
+  }
+  
+  nav ul li a {
+    color: #fff;
+    text-decoration: none;
+    font-size: 1.1rem;
+    font-family: 'Noto Sans', sans-serif;
+  }
+
+  #content button{
+    margin: 8px 8px 0 8px;
+    padding: 8px 8px 0 8px;
+    border-radius: 5px;
+    border: none;  
+    color: black;
+    background-color: transparent;
+    font-size: 1.1rem;
+    font-family: 'Noto Sans', sans-serif;
+  }
+
+  #output {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  width: 100%;
+}
+
+.card-container {
+  flex-basis: 33%; /* Adjust this value as needed */
+  margin: 8px 13px ;
+  max-width: 350px;
+}
+
+.card {
+  margin: 10px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  width: 100%;
+}
+
+.container{
+  max-width: 100%;
+}
+
+ 
+  .hrwidth{
+    max-width: 100%;
+  }
+
+ 
+.card-title {
+  font-size: 1.5rem; /* Adjust the heading size as needed */
+  margin-bottom: 10px;
+  color: black;
+}
+
+.card-text {
+  font-size: 1.05rem; /* Adjust the font size as needed */
+  margin-bottom: 5px;
+}
+
+.publish{
+  font-size: 0.9rem;
+  margin-bottom: 5px;
+  color: #c7742b;
+
+}
+
+.card-heading a{
+  text-decoration: none;
+  color: black;
+}
+
+ 
+  </style>
+</head>
+<body>
+  <nav>
+    <ul>
+      <li><a href="news.html">News</a></li>
+      <li><a href="education.html">Articles</a></li>
+      <li><a href="profile.html">Profile</a></li>
+    </ul>
+  </nav>
+
+  <div class="container">
+    <div id="content">
+      <button onclick="showNews()">Headlines</button>
+      <button onclick="showstories()">Top Stories</button>
+    </div>
+    <div class="hrwidth"><hr></div>
+    <div id="output"></div>
+    <p id="error-message"></p>
+  </div>
+  <script>
+    async function loadNews(url) {
+      try {
+        const currentDate = new Date();
+        const previousDate = new Date();
+        previousDate.setMonth(previousDate.getMonth() - 1);
+
+        const currentDateString = currentDate.toISOString().split("T")[0];
+        const previousDateString = previousDate.toISOString().split("T")[0];
+
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (data.status === "ok") {
+          const articles = data.articles;
+
+          articles.forEach((article) => {
+            const output = document.getElementById("output");
+            const cardContainer = document.createElement("div");
+            cardContainer.className = "card-container";
+
+            const card = document.createElement("div");
+            card.className = "card";
+            const cardBody = document.createElement("div");
+            cardBody.className = "card-body";
+            const title = document.createElement("h2");
+            title.className = "card-title card-heading";
+            const titleLink = document.createElement("a");
+            titleLink.href = article.url;
+            titleLink.textContent = article.title;
+            title.appendChild(titleLink);
+            const author = document.createElement("p");
+            author.className = "card-text publish";
+            author.textContent = `Author: ${article.author}`;
+            const publishedAt = document.createElement("p");
+            publishedAt.className = "card-text publish";
+            publishedAt.textContent = `Published At: ${article.publishedAt}`;
+            const content = document.createElement("p");
+            content.className = "card-text";
+            content.textContent = article.content;
+
+            cardBody.appendChild(title);
+            cardBody.appendChild(content);
+            cardBody.appendChild(author);
+            cardBody.appendChild(publishedAt);
+            card.appendChild(cardBody);
+            cardContainer.appendChild(card);
+            output.appendChild(cardContainer);
+            output.appendChild(document.createElement("br"));
+          });
+        } else {
+          document.getElementById("error-message").textContent = "Error fetching news articles.";
+        }
+      } catch (error) {
+        console.log("Error:", error);
+        document.getElementById("error-message").textContent = "Error fetching news articles.";
+      }
+    }
+
+    function showNews() {
+      const output = document.getElementById("output");
+      output.innerHTML = "";
+      loadNews("https://newsapi.org/v2/top-headlines?q=stock&from=${previousDateString}&to=${currentDateString}&country=in&apiKey=2844c95b7c334827aff14f6b5e1dd9ae");
+    }
+
+    function showstories() {
+      const output = document.getElementById("output");
+      output.innerHTML = "";
+      loadNews("https://newsapi.org/v2/everything?q=stock&from=${previousDateString}&to=${currentDateString}&apiKey=2844c95b7c334827aff14f6b5e1dd9ae");
+    }
+
+    showNews();
+  </script>
+</body>
+
+</html>
